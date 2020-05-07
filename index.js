@@ -13,5 +13,5 @@ app.use('/users', userRouter);
 app.use('/blogs', blogRouter);
 
 app.listen(port, () =>
-  console.log(`Example app listening at http://localhost:${port}`)
+  console.log(`Blog app listening at http://localhost:${port}`)
 );

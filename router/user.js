@@ -57,7 +57,6 @@ router.post('/login', validate(loginValidation), async (req, res, next) => {
 
   // jwt token
   const token = await user.generateToken();
-
   res.send(token);
 });
 
