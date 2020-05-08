@@ -3,11 +3,17 @@ const blogRouter = require('./router/blog');
 require('./db/db');
 
 const express = require('express');
+const cors = require('cors');
 
 const app = express();
 const port = 3000;
 
 app.use(express.json());
+app.use(cors());
+
+app.get('/', (req, res, next) => {
+  res.send('Hello, everyone!');
+});
 
 app.use('/users', userRouter);
 app.use('/blogs', blogRouter);

@@ -34,8 +34,8 @@ router.post('/register', async (req, res, next) => {
   let { firstName, lastName, email, password } = req.body;
   password = await bcrypt.hash(password, saltRounds);
   const user = new User({ firstName, lastName, email, password });
-  const savedUser = await user.save();
-  res.send(savedUser);
+  const response = await user.save();
+  res.send(response);
 });
 
 router.post('/login', validate(loginValidation), async (req, res, next) => {

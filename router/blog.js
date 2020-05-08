@@ -5,10 +5,8 @@ const authenticateUser = require('../middleware/authentication');
 const express = require('express');
 const router = express.Router();
 
-// TODOs
-// edit blog
-
-router.get('/', authenticateUser, async (req, res, next) => {
+// put authenticateUser back!
+router.get('/', async (req, res, next) => {
   const blogs = await Blog.find()
     .populate('author')
     .sort({ createdAt: 'desc' });
