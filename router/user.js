@@ -55,9 +55,12 @@ router.post('/login', validate(loginValidation), async (req, res, next) => {
     throw error;
   }
 
+  const blogs = await Blog.find({ author: user._id });
+
   // jwt token
   const token = await user.generateToken();
-  res.send(token);
+  user.token = token;
+  res.send({ user, blogs, token });
 });
 
 module.exports = router;

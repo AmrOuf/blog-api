@@ -5,8 +5,7 @@ const authenticateUser = require('../middleware/authentication');
 const express = require('express');
 const router = express.Router();
 
-// put authenticateUser back!
-router.get('/', async (req, res, next) => {
+router.get('/', authenticateUser,  async (req, res, next) => {
   const blogs = await Blog.find()
     .populate('author')
     .sort({ createdAt: 'desc' });

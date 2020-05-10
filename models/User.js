@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const util = require('util');
+const lodash = require('lodash');
 
 const jwtSecret = 'asdvajsdfhga';
 const signJWT = util.promisify(jwt.sign);
@@ -43,7 +44,10 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { transform: (doc, ret) => lodash.omit(ret, ['__v', 'password']) },
+  }
 );
 
 userSchema.virtual('blogs', {
