@@ -5,14 +5,14 @@ const authenticateUser = require('../middleware/authentication');
 const express = require('express');
 const router = express.Router();
 
-router.get('/', authenticateUser,  async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   const blogs = await Blog.find()
     .populate('author')
     .sort({ createdAt: 'desc' });
   res.send(blogs);
 });
 
-router.get('/add', authenticateUser, async (req, res, next) => {
+router.post('/add', authenticateUser, async (req, res, next) => {
   const authorId = req.user.id;
   const { title, body, tags = [] } = req.body;
   const blog = new Blog({
