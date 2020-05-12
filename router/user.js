@@ -20,6 +20,20 @@ router.get('/', authenticateUser, async (req, res, next) => {
   res.send(users);
 });
 
+router.get('/search', authenticateUser, async (req, res, next) => {
+  const allUsers = await User.find();
+  const { query } = req.body;
+  // handle if there is no query
+  const users = allUsers.filter((user) => {
+    // console.log(user.firstName, user.firstName.toLowerCase().includes(''));
+    return (
+      user.firstName.toLowerCase().includes(query.toLowerCase().trim()) ||
+      user.lastName.toLowerCase().includes(query.toLowerCase().trim())
+    );
+  });
+  res.send(users);
+});
+
 router.get('/:id', authenticateUser, async (req, res, next) => {
   const viewedUser = await User.findById(req.params.id);
   const blogs = await Blog.find({ author: req.params.id });

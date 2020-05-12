@@ -15,8 +15,8 @@ app.get('/', (req, res, next) => {
   res.send('Hello, everyone!');
 });
 
-app.use('/users', userRouter);
-app.use('/blogs', blogRouter);
+app.use(['/user', '/users'], userRouter);
+app.use(['/blog', '/blogs'], blogRouter);
 
 app.listen(port, () =>
   console.log(`Blog app listening at http://localhost:${port}`)

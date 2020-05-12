@@ -12,6 +12,31 @@ router.get('/', async (req, res, next) => {
   res.send(blogs);
 });
 
+router.get('/searchbytitle', authenticateUser, async (req, res, next) => {
+  const allBlogs = await Blog.find();
+  const { query } = req.body;
+  // handle if there is no query
+  const blogs = allBlogs.filter((blog) => {
+    return blog.title.toLowerCase().includes(query.toLowerCase().trim());
+  });
+  res.send(blogs);
+});
+
+router.get('/searchbytags', authenticateUser, async (req, res, next) => {
+  const allBlogs = await Blog.find();
+  let { query } = req.body;
+  query = query.toLowerCase().trim();
+  // handle if there is no query
+  const blogs = allBlogs.filter((blog) => {
+    for (let i = 0; i < blog.tags.length; i++) {
+      if (blog.tags[i].toLowerCase().includes(query)) {
+        return true;
+      }
+    }
+  });
+  res.send(blogs);
+});
+
 router.post('/add', authenticateUser, async (req, res, next) => {
   const authorId = req.user.id;
   const { title, body, tags = [] } = req.body;
