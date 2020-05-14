@@ -8,17 +8,21 @@ require('express-async-errors');
 const router = express.Router();
 
 router.get('/', async (req, res, next) => {
+  const { pageNumber, pageSize } = req.body;
+  console.log(pageNumber, pageSize);
   const blogs = await Blog.find()
     .populate('author')
-    .sort({ createdAt: 'desc' });
+    .sort({ createdAt: 'desc' })
+    .skip(pageNumber * pageSize)
+    .limit(pageSize);
   res.send(blogs);
 });
 
 router.get('/searchbytitle', authenticateUser, async (req, res, next) => {
+  const query = req.query.keyword.toLowerCase().trim();
   const allBlogs = await Blog.find()
     .populate('author')
     .sort({ createdAt: 'desc' });
-  const query = req.query.keyword.trim();
   // handle if there is no query
   const blogs = allBlogs.filter((blog) => {
     return blog.title.toLowerCase().includes(query.toLowerCase().trim());
@@ -30,8 +34,7 @@ router.get('/searchbytags', authenticateUser, async (req, res, next) => {
   const allBlogs = await Blog.find()
     .populate('author')
     .sort({ createdAt: 'desc' });
-  let query = req.query.keyword.trim();
-  query = query.toLowerCase().trim();
+  const query = req.query.keyword.toLowerCase().trim();
   // handle if there is no query
   const blogs = allBlogs.filter((blog) => {
     for (let i = 0; i < blog.tags.length; i++) {
