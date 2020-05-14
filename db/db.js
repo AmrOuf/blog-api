@@ -10,6 +10,6 @@ mongoose
   })
   .catch((err) => {
     // if you couldn't connect to the database, fail early
-    console.log('failed to connect');
+    console.log('failed to connect to mongo db. Check services.');
     process.exit(1);
   });

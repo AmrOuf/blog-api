@@ -1,8 +1,10 @@
 const User = require('../models/User');
 const Blog = require('../models/Blog');
 const authenticateUser = require('../middleware/authentication');
+const customError = require('../helpers/customError');
 
 const express = require('express');
+require('express-async-errors');
 const { validate, ValidationError, Joi } = require('express-validation');
 const bcrypt = require('bcrypt');
 
@@ -22,7 +24,7 @@ router.get('/', authenticateUser, async (req, res, next) => {
 
 router.get('/search', authenticateUser, async (req, res, next) => {
   const allUsers = await User.find();
-  const { query } = req.body;
+  const query = req.query.keyword.trim();
   // handle if there is no query
   const users = allUsers.filter((user) => {
     // console.log(user.firstName, user.firstName.toLowerCase().includes(''));
@@ -46,6 +48,10 @@ router.get('/:id', authenticateUser, async (req, res, next) => {
 
 router.post('/register', async (req, res, next) => {
   let { firstName, lastName, email, password } = req.body;
+  if (!firstName || !lastName || !email || !password) {
+    const error = new customError('Required fields missing!', 400);
+    next(error);
+  }
   password = await bcrypt.hash(password, saltRounds);
   const user = new User({ firstName, lastName, email, password });
   const response = await user.save();
@@ -57,16 +63,14 @@ router.post('/login', validate(loginValidation), async (req, res, next) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    const error = new Error('Wrong email or password!');
-    error.statusCode = 401;
-    throw error;
+    const error = new customError('Wrong email or password!', 401);
+    next(error);
   }
 
   const isCorrectPassword = await bcrypt.compare(password, user.password);
   if (!isCorrectPassword) {
-    const error = new Error('Wrong email or password!');
-    error.statusCode = 401;
-    throw error;
+    const error = new customError('Wrong email or password!', 401);
+    next(error);
   }
 
   const blogs = await Blog.find({ author: user._id });

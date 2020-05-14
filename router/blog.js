@@ -1,8 +1,10 @@
 const User = require('../models/User');
 const Blog = require('../models/Blog');
 const authenticateUser = require('../middleware/authentication');
+const customError = require('../helpers/customError');
 
 const express = require('express');
+require('express-async-errors');
 const router = express.Router();
 
 router.get('/', async (req, res, next) => {
@@ -13,8 +15,10 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/searchbytitle', authenticateUser, async (req, res, next) => {
-  const allBlogs = await Blog.find();
-  const { query } = req.body;
+  const allBlogs = await Blog.find()
+    .populate('author')
+    .sort({ createdAt: 'desc' });
+  const query = req.query.keyword.trim();
   // handle if there is no query
   const blogs = allBlogs.filter((blog) => {
     return blog.title.toLowerCase().includes(query.toLowerCase().trim());
@@ -23,8 +27,10 @@ router.get('/searchbytitle', authenticateUser, async (req, res, next) => {
 });
 
 router.get('/searchbytags', authenticateUser, async (req, res, next) => {
-  const allBlogs = await Blog.find();
-  let { query } = req.body;
+  const allBlogs = await Blog.find()
+    .populate('author')
+    .sort({ createdAt: 'desc' });
+  let query = req.query.keyword.trim();
   query = query.toLowerCase().trim();
   // handle if there is no query
   const blogs = allBlogs.filter((blog) => {
@@ -56,15 +62,13 @@ router.delete('/delete/:id', authenticateUser, async (req, res, next) => {
   const blog = await Blog.findOne({ _id: blogId }).populate('author');
 
   if (!blog) {
-    const error = new Error('Not Found');
-    error.statusCode = 404;
-    throw error;
+    const error = new customError('Not Found!', 404);
+    next(error);
   }
 
   if (blog.author.id !== userId) {
-    const error = new Error('Not Authorized');
-    error.statusCode = 401;
-    throw error;
+    const error = new customError('Not Authorized!', 401);
+    next(error);
   }
 
   const deleted = await Blog.deleteOne({ _id: blogId });
@@ -77,15 +81,13 @@ router.patch('/edit/:id', authenticateUser, async (req, res, next) => {
   const blog = await Blog.findOne({ _id: blogId }).populate('author');
 
   if (!blog) {
-    const error = new Error('Not Found');
-    error.statusCode = 404;
-    throw error;
+    const error = new customError('Not Found!', 404);
+    next(error);
   }
 
   if (blog.author.id !== userId) {
-    const error = new Error('Not Authorized');
-    error.statusCode = 401;
-    throw error;
+    const error = new customError('Not Authorized!', 401);
+    next(error);
   }
 
   const { title = blog.title, body = blog.body, tags = blog.tags } = req.body;
