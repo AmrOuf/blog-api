@@ -7,9 +7,9 @@ const express = require('express');
 require('express-async-errors');
 const router = express.Router();
 
-router.get('/', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   const { pageNumber, pageSize } = req.body;
-  console.log(pageNumber, pageSize);
+  //console.log(pageNumber, pageSize);
   const blogs = await Blog.find()
     .populate('author')
     .sort({ createdAt: 'desc' })
@@ -18,19 +18,23 @@ router.get('/', async (req, res, next) => {
   res.send(blogs);
 });
 
-router.get('/searchbytitle', authenticateUser, async (req, res, next) => {
+router.post('/searchbytitle', authenticateUser, async (req, res, next) => {
+  const { pageNumber, pageSize } = req.body;
   const query = req.query.keyword.toLowerCase().trim();
   const allBlogs = await Blog.find()
     .populate('author')
     .sort({ createdAt: 'desc' });
   // handle if there is no query
   const blogs = allBlogs.filter((blog) => {
-    return blog.title.toLowerCase().includes(query.toLowerCase().trim());
+    return blog.title.toLowerCase().includes(query);
   });
-  res.send(blogs);
+  res.send(
+    blogs.slice(pageNumber * pageSize, pageNumber * pageSize + pageSize)
+  );
 });
 
-router.get('/searchbytags', authenticateUser, async (req, res, next) => {
+router.post('/searchbytags', authenticateUser, async (req, res, next) => {
+  const { pageNumber, pageSize } = req.body;
   const allBlogs = await Blog.find()
     .populate('author')
     .sort({ createdAt: 'desc' });
@@ -43,7 +47,9 @@ router.get('/searchbytags', authenticateUser, async (req, res, next) => {
       }
     }
   });
-  res.send(blogs);
+  res.send(
+    blogs.slice(pageNumber * pageSize, pageNumber * pageSize + pageSize)
+  );
 });
 
 router.post('/add', authenticateUser, async (req, res, next) => {
@@ -102,6 +108,18 @@ router.patch('/edit/:id', authenticateUser, async (req, res, next) => {
 
   res.send(updated);
 });
+
+router.get('/getById/:id', authenticateUser, async (req, res, next) => {
+  const blogId = req.params.id;
+  const blog = await Blog.findOne({ _id: blogId }).populate('author');
+
+  if (!blog) {
+    const error = new customError('Not Found!', 404);
+    next(error);
+  }
+
+  res.send(blog);
+})
 
 // blogs of the followers of the logged in user lol
 router.get('/following', authenticateUser, async (req, res, next) => {
