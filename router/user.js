@@ -46,6 +46,18 @@ router.get('/:id', authenticateUser, async (req, res, next) => {
   res.send(user);
 });
 
+router.patch('/edit/:id', authenticateUser, async (req, res, next) => {
+  const userId = req.params.id;
+  const user = req.body.user;
+
+  const updated = await User.updateOne(
+    { _id: userId },
+    { following: user.following, followers: user.followers }
+  );
+
+  res.send(updated);
+});
+
 router.post('/register', async (req, res, next) => {
   let { firstName, lastName, email, password } = req.body;
   if (!firstName || !lastName || !email || !password) {
