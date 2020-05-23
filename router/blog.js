@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Blog = require('../models/Blog');
 const authenticateUser = require('../middleware/authentication');
+const imageUpload = require('../middleware/imageUpload');
 const customError = require('../helpers/customError');
 
 const express = require('express');
@@ -15,11 +16,20 @@ router.post('/', async (req, res, next) => {
     .sort({ createdAt: 'desc' })
     .skip(pageNumber * pageSize)
     .limit(pageSize);
+  //console.log(blogs);
   res.send(blogs);
 });
 
-router.post('/searchbytitle', authenticateUser, async (req, res, next) => {
-  const { pageNumber, pageSize } = req.body;
+
+router.get('/count', async (req, res, next) => {
+  
+  
+  const count = await Blog.count();
+  console.log(count);
+  res.send({count: count});
+});
+
+router.get('/searchbytitle', authenticateUser, async (req, res, next) => {
   const query = req.query.keyword.toLowerCase().trim();
   const allBlogs = await Blog.find()
     .populate('author')
@@ -28,12 +38,10 @@ router.post('/searchbytitle', authenticateUser, async (req, res, next) => {
   const blogs = allBlogs.filter((blog) => {
     return blog.title.toLowerCase().includes(query);
   });
-  res.send(
-    blogs.slice(pageNumber * pageSize, pageNumber * pageSize + pageSize)
-  );
+  res.send(blogs);
 });
 
-router.post('/searchbytags', authenticateUser, async (req, res, next) => {
+router.get('/searchbytags', authenticateUser, async (req, res, next) => {
   const { pageNumber, pageSize } = req.body;
   const allBlogs = await Blog.find()
     .populate('author')
@@ -47,20 +55,25 @@ router.post('/searchbytags', authenticateUser, async (req, res, next) => {
       }
     }
   });
-  res.send(
-    blogs.slice(pageNumber * pageSize, pageNumber * pageSize + pageSize)
-  );
+  res.send(blogs);
 });
 
 router.post('/add', authenticateUser, async (req, res, next) => {
   const authorId = req.user.id;
-  const { title, body, tags = [] } = req.body;
+  
+  let { title, body, tags = [] } = req.body;
+  console.log(tags);
+  //const tagArray = tags[0].split(',');
+  //console.log(tagArray);
+
   const blog = new Blog({
     title,
     body,
     author: authorId,
     tags,
+    //tags: tagArray,
   });
+  // console.log(blog);
   const savedBlog = await blog.save();
   res.send(savedBlog);
 });
@@ -119,7 +132,7 @@ router.get('/getById/:id', authenticateUser, async (req, res, next) => {
   }
 
   res.send(blog);
-})
+});
 
 // blogs of the followers of the logged in user lol
 router.get('/following', authenticateUser, async (req, res, next) => {
