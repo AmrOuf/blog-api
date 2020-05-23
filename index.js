@@ -6,12 +6,16 @@ const { globalErrorHandler } = require('./helpers/errorHandlers');
 const express = require('express');
 const cors = require('cors');
 require('express-async-errors');
+const multer = require('multer');
+const path = require('path');
 
 const app = express();
 const port = 3000;
 
 app.use(express.json());
 app.use(cors());
+app.use(express.static('./public'));
+
 
 app.get('/', (req, res, next) => {
   res.send('Hello, everyone!');

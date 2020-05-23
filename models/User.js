@@ -58,7 +58,7 @@ userSchema.virtual('blogs', {
 
 userSchema.methods.generateToken = function () {
   const currentDocument = this;
-  return signJWT({ id: currentDocument.id }, jwtSecret, { expiresIn: '1h' });
+  return signJWT({ id: currentDocument.id }, jwtSecret, { expiresIn: '7d' });
 };
 
 userSchema.statics.getUserFromToken = async function (token) {
