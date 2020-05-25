@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
 
+if (!process.env.MONGO_URI) {
+  // should this be a custom error?
+  throw new Error('Database URI can not be found');
+}
 mongoose
-  .connect('mongodb://localhost/blog', {
+  .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })

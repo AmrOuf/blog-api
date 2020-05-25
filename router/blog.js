@@ -22,10 +22,8 @@ router.post('/', async (req, res, next) => {
 
 
 router.get('/count', async (req, res, next) => {
-  
-  
   const count = await Blog.count();
-  console.log(count);
+  //console.log(count);
   res.send({count: count});
 });
 
@@ -62,7 +60,7 @@ router.post('/add', authenticateUser, async (req, res, next) => {
   const authorId = req.user.id;
   
   let { title, body, tags = [] } = req.body;
-  console.log(tags);
+  // console.log(tags);
   //const tagArray = tags[0].split(',');
   //console.log(tagArray);
 
