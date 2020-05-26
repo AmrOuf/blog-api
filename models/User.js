@@ -6,7 +6,6 @@ const customError = require('../helpers/customError');
 
 const jwtSecret = process.env.JWT_SECRET;
 if (!jwtSecret) {
-  // should this be a custom error?
   throw new Error('JWT secret environment variable can not be found');
 }
 const signJWT = util.promisify(jwt.sign);
@@ -67,7 +66,6 @@ userSchema.methods.generateToken = function () {
 };
 
 userSchema.statics.getUserFromToken = async function (token) {
-  // const User = this;
   const { id } = await verifyJWT(token, jwtSecret);
   const user = await User.findById(id);
   return user;

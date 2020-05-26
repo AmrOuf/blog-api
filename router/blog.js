@@ -1,7 +1,5 @@
-const User = require('../models/User');
 const Blog = require('../models/Blog');
 const authenticateUser = require('../middleware/authentication');
-const imageUpload = require('../middleware/imageUpload');
 const customError = require('../helpers/customError');
 
 const express = require('express');
@@ -10,21 +8,17 @@ const router = express.Router();
 
 router.post('/', async (req, res, next) => {
   const { pageNumber, pageSize } = req.body;
-  //console.log(pageNumber, pageSize);
   const blogs = await Blog.find()
     .populate('author')
     .sort({ createdAt: 'desc' })
     .skip(pageNumber * pageSize)
     .limit(pageSize);
-  //console.log(blogs);
   res.send(blogs);
 });
 
-
 router.get('/count', async (req, res, next) => {
   const count = await Blog.count();
-  //console.log(count);
-  res.send({count: count});
+  res.send({ count: count });
 });
 
 router.get('/searchbytitle', authenticateUser, async (req, res, next) => {
@@ -32,7 +26,6 @@ router.get('/searchbytitle', authenticateUser, async (req, res, next) => {
   const allBlogs = await Blog.find()
     .populate('author')
     .sort({ createdAt: 'desc' });
-  // handle if there is no query
   const blogs = allBlogs.filter((blog) => {
     return blog.title.toLowerCase().includes(query);
   });
@@ -45,7 +38,6 @@ router.get('/searchbytags', authenticateUser, async (req, res, next) => {
     .populate('author')
     .sort({ createdAt: 'desc' });
   const query = req.query.keyword.toLowerCase().trim();
-  // handle if there is no query
   const blogs = allBlogs.filter((blog) => {
     for (let i = 0; i < blog.tags.length; i++) {
       if (blog.tags[i].toLowerCase().includes(query)) {
@@ -58,20 +50,14 @@ router.get('/searchbytags', authenticateUser, async (req, res, next) => {
 
 router.post('/add', authenticateUser, async (req, res, next) => {
   const authorId = req.user.id;
-  
   let { title, body, tags = [] } = req.body;
-  // console.log(tags);
-  //const tagArray = tags[0].split(',');
-  //console.log(tagArray);
 
   const blog = new Blog({
     title,
     body,
     author: authorId,
     tags,
-    //tags: tagArray,
   });
-  // console.log(blog);
   const savedBlog = await blog.save();
   res.send(savedBlog);
 });
@@ -132,13 +118,9 @@ router.get('/getById/:id', authenticateUser, async (req, res, next) => {
   res.send(blog);
 });
 
-// blogs of the followers of the logged in user lol
+// blogs of the followers of the logged in user
 router.get('/following', authenticateUser, async (req, res, next) => {
   const user = req.user;
-  // get blogs of one user, may be use it in a different handler
-  const blogsOfSpecificUser = await (
-    await Blog.find().populate('author')
-  ).filter((blog) => blog.author.id === '5eb31ccf0982bd00f490dc09');
 
   // get blogs of only the following users
   let blogsOfFollowing = [];

@@ -25,9 +25,7 @@ router.get('/', authenticateUser, async (req, res, next) => {
 router.get('/search', authenticateUser, async (req, res, next) => {
   const allUsers = await User.find();
   const query = req.query.keyword.trim();
-  // handle if there is no query
   const users = allUsers.filter((user) => {
-    // console.log(user.firstName, user.firstName.toLowerCase().includes(''));
     return (
       user.firstName.toLowerCase().includes(query.toLowerCase().trim()) ||
       user.lastName.toLowerCase().includes(query.toLowerCase().trim())
@@ -86,8 +84,6 @@ router.post('/login', validate(loginValidation), async (req, res, next) => {
   }
 
   const blogs = await Blog.find({ author: user._id });
-
-  // jwt token
   const token = await user.generateToken();
   user.token = token;
   res.send({ user, blogs, token });
