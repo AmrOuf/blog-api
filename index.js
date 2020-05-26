@@ -26,6 +26,4 @@ app.use(['/blog', '/blogs'], blogRouter);
 
 app.use(globalErrorHandler);
 
-app.listen(port, () =>
-  console.log(`Blog app listening at ${https://api-bloggy.herokuapp.com}:${port}`)
-);
+app.listen(port);
